@@ -106,6 +106,11 @@ Connection::~Connection() {
     std::cout << "Deleting connection" << std::endl;
   /* refpacket is not a pointer to one of the packets in the lists
    * so deleted */
+	  
+  //	  is over! Now Deleting it!" << std::endl;
+
+  // It is already being taken care of in other function that prints information regarding the deletion of the connection as well as based on what process that was done
+
   delete (refpacket);
   if (sent_packets != NULL)
     delete sent_packets;

@@ -65,6 +65,7 @@ int viewMode = VIEWMODE_KBPS;
 const char version[] = " version " VERSION;
 timeval curtime;
 
+// Used to check if a given IPv4 Address is in the local IP addresses list
 bool local_addr::contains(const in_addr_t &n_addr) {
   if ((sa_family == AF_INET) && (n_addr == addr))
     return true;
@@ -73,6 +74,7 @@ bool local_addr::contains(const in_addr_t &n_addr) {
   return next->contains(n_addr);
 }
 
+// Additional Version to support IPv6
 bool local_addr::contains(const struct in6_addr &n_addr) {
   if (sa_family == AF_INET6) {
     /*
@@ -96,7 +98,7 @@ bool local_addr::contains(const struct in6_addr &n_addr) {
     return false;
   return next->contains(n_addr);
 }
-
+/*
 struct dpargs {
   const char *device;
   int sa_family;
@@ -104,7 +106,7 @@ struct dpargs {
   in_addr ip_dst;
   in6_addr ip6_src;
   in6_addr ip6_dst;
-};
+};*/
 
 const char *getVersion() { return version; }
 

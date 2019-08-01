@@ -53,32 +53,36 @@ local_addr *local_addrs = NULL;
  */
 bool getLocal(const char *device, bool tracemode) {
   struct ifaddrs *ifaddr, *ifa;
+  // Getting the interfaces addresses into 'ifaddr' - simply a LIST of addresses
   if (getifaddrs(&ifaddr) == -1) {
     return false;
   }
-
+	
+  // Go over all the list of the interface's addresses
   for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
     if (ifa->ifa_addr == NULL)
       continue;
 
+    // Check if the 'current in loop interface' is assoicated with the device
     if (strcmp(ifa->ifa_name, device) != 0)
       continue;
 
     int family = ifa->ifa_addr->sa_family;
 
+    // If that address is IPv4:
     if (family == AF_INET) {
       struct sockaddr_in *addr = (struct sockaddr_in *)ifa->ifa_addr;
       local_addrs = new local_addr(addr->sin_addr.s_addr, local_addrs);
 
       if (tracemode || DEBUG) {
-        printf("Adding local address: %s\n", inet_ntoa(addr->sin_addr));
+        printf("Adding local IPv4 address: %s\n", inet_ntoa(addr->sin_addr));
       }
     } else if (family == AF_INET6) {
       struct sockaddr_in6 *addr = (struct sockaddr_in6 *)ifa->ifa_addr;
       local_addrs = new local_addr(&addr->sin6_addr, local_addrs);
       if (tracemode || DEBUG) {
         char host[512];
-        printf("Adding local address: %s\n",
+        printf("Adding local IPv6 address: %s\n",
                inet_ntop(AF_INET6, &addr->sin6_addr, host, sizeof(host)));
       }
     }
@@ -301,3 +305,6 @@ bool Packet::match(Packet *other) {
 bool Packet::matchSource(Packet *other) {
   return (sport == other->sport) && (sameinaddr(sip, other->sip));
 }
+
+short int Packet::getFamily(){
+  return sa_family;}

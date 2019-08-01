@@ -118,6 +118,7 @@ def run_monitor_loop(lib, devnames):
 
     if len(devnames) < 1:
         # monitor all devices
+        # A
         rc = lib.nethogsmonitor_loop(
             CALLBACK_FUNC_TYPE(network_activity_callback),
             filter_arg
@@ -139,12 +140,17 @@ def run_monitor_loop(lib, devnames):
 
 
 def network_activity_callback(action, data):
+    """
+        data: a Pointer to "NethogsMonitorRecord" (an application usage data)
+    """
+
     print(datetime.datetime.now().strftime('@%H:%M:%S.%f'))
 
     # Action type is either SET or REMOVE. I have never seen nethogs send an unknown action
     # type, and I don't expect it to do so.
     action_type = Action.MAP.get(action, 'Unknown')
 
+    
     print('Action: {}'.format(action_type))
     print('Record id: {}'.format(data.contents.record_id))
     print('Name: {}'.format(data.contents.name))
@@ -154,6 +160,8 @@ def network_activity_callback(action, data):
     print('Sent/Recv bytes: {} / {}'.format(data.contents.sent_bytes, data.contents.recv_bytes))
     print('Sent/Recv kbs: {} / {}'.format(data.contents.sent_kbs, data.contents.recv_kbs))
     print('-' * 30)
+
+
 
 #############       Main begins here      ##############
 

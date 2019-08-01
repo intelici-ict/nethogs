@@ -45,11 +45,11 @@
 
 /* the amount of time after the last packet was received
  * after which a process is removed */
-#define PROCESSTIMEOUT 150
+#define PROCESSTIMEOUT 15
 
 /* the amount of time after the last packet was received
  * after which a connection is removed */
-#define CONNTIMEOUT 50
+#define CONNTIMEOUT 10
 
 #define DEBUG 0
 
@@ -71,6 +71,15 @@ enum {
   VIEWMODE_MBPS,
   VIEWMODE_GBPS,
   VIEWMODE_COUNT
+};
+
+struct dpargs {
+  const char *device;
+  int sa_family;
+  in_addr ip_src;
+  in_addr ip_dst;
+  in6_addr ip6_src;
+  in6_addr ip6_dst;
 };
 
 #define NORETURN __attribute__((__noreturn__))

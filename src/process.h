@@ -30,6 +30,14 @@
 extern bool tracemode;
 extern bool bughuntmode;
 
+// Added to keep a Linked List describing all information about every connection (based on IPs) for each and every process
+typedef struct conn_summary{
+	struct dpargs info; // contains information about ips and family
+	int total_sent;
+	int total_received;
+	struct conn_summary *next;
+}ConnSummary;
+
 void check_all_procs();
 
 class ConnList {
@@ -43,7 +51,7 @@ public:
     /* does not delete its value, to allow a connection to
      * remove itself from the global connlist in its destructor */
   }
-  Connection *getVal() { return val; }
+  Connection *getVal() { return val; } // To obtain a Connection from a ConnList
   void setNext(ConnList *m_next) { next = m_next; }
   ConnList *getNext() { return next; }
 
@@ -80,6 +88,7 @@ public:
     uid = 0;
     sent_by_closed_bytes = 0;
     rcvd_by_closed_bytes = 0;
+    conn_summary_list = NULL;
   }
   void check() { assert(pid >= 0); }
 
@@ -99,12 +108,19 @@ public:
   void gettotalkb(float *recvd, float *sent);
   void gettotalb(float *recvd, float *sent);
 
+  /* Check if a provided "conn" is in the Linked List of the Connections Sumamry */
+  bool matchConnection(Connection *conn);
+  void updateConnection(ConnSummary *node_connection, Connection *del_conn);
+  void addToList(Connection *conn);
+  void setConnectionData(ConnSummary *cur_conn, Connection *conn_to_update);
+
   char *name;
   char *cmdline;
   const char *devicename;
   int pid;
   u_int64_t sent_by_closed_bytes;
   u_int64_t rcvd_by_closed_bytes;
+  ConnSummary *conn_summary_list; // Connection summary Linked List
 
   ConnList *connections;
   uid_t getUid() { return uid; }
@@ -144,4 +160,7 @@ void procclean();
 
 void remove_timed_out_processes();
 
+void plot_process_connections_summary(Process *proc);
+
+void remove_process_connections_summary(Process *p_todelete);
 #endif

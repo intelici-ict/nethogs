@@ -301,6 +301,7 @@ int main(int argc, char **argv) {
          current_handle = current_handle->next) {
       userdata->device = current_handle->devicename;
       userdata->sa_family = AF_UNSPEC;
+      //dp_dispatch --> function to start monitoring
       int retval = dp_dispatch(current_handle->content, -1, (u_char *)userdata,
                                sizeof(struct dpargs));
       if (retval == -1)
@@ -319,7 +320,7 @@ int main(int argc, char **argv) {
       last_refresh_time = now;
       if ((!DEBUG) && (!tracemode)) {
         // handle user input
-        ui_tick();
+        ui_tick(); // Simply show the Nethogs UI
       }
       do_refresh();
     }

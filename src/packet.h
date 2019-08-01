@@ -74,11 +74,17 @@ public:
   bool matchSource(Packet *other);
   /* returns '1.2.3.4:5-1.2.3.4:6'-style string */
   char *gethashstring();
+  short int getFamily();
 
 private:
   direction dir;
   short int sa_family;
   char *hashstring;
 };
+
+bool sameinaddr(in_addr one, in_addr other);
+
+bool samein6addr(in6_addr one, in6_addr other);
+
 
 #endif
