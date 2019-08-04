@@ -233,11 +233,11 @@ int main(int argc, char **argv) {
 
   char errbuf[PCAP_ERRBUF_SIZE];
 
-  int nb_devices = 0;
+  int nb_devices = 0; // Counting the number of devices
   int nb_failed_devices = 0;
 
   handle *handles = NULL;
-  device *current_dev = devices;
+  device *current_dev = devices;  // current_dev <--> "current_device"
   while (current_dev != NULL) {
     ++nb_devices;
 

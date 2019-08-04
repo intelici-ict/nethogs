@@ -88,7 +88,7 @@ public:
     uid = 0;
     sent_by_closed_bytes = 0;
     rcvd_by_closed_bytes = 0;
-    conn_summary_list = NULL;
+    conn_summary_list = NULL; // Contains a Linked List of all AGGREGADTED CONNECTIONs of that process - even if a connection is tore down and then starts once again - it will be added to the same "node" representing a Unique Connection - based on "Source/Destination IP" & "Source/Destination Port"
   }
   void check() { assert(pid >= 0); }
 
