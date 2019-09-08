@@ -264,7 +264,7 @@ char *Packet::gethashstring() {
     return hashstring;
   }
 
-  // TODO free this value in the Packet destructor
+  // TODO free this value in the Packet destructor --- Should we just assign hashstring using "this"? (Associate it with a particular Packet)?
   hashstring = (char *)malloc(HASHKEYSIZE * sizeof(char));
 
   char *local_string = (char *)malloc(50);

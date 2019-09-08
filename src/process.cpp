@@ -100,7 +100,7 @@ int Process::getLastPacket() {
   }
   return lastpacket;
 }
-
+/*
 // #TODO add support also for converting and printing IPv6 
 void print_statistics_about_connection(Connection *conn)
 {
@@ -109,26 +109,27 @@ void print_statistics_about_connection(Connection *conn)
   std::cout << "Source IP = " << str << std::endl;
   inet_ntop(AF_INET, &(conn->refpacket->dip), str, INET_ADDRSTRLEN);
   std::cout << "Destination IP = " << str << std::endl;
-  std::cout << "Source IP = " << conn->refpacket->sport << std::endl;
+  std::cout << "Source Port = " << conn->refpacket->sport << std::endl;
+  std::cout << "Dest Port = " << conn->refpacket->dport << std::endl;
   std::cout << "Total Bytes Sent = " << conn->sumSent << std::endl;
   std::cout << "Total Bytes Received = " << conn->sumRecv << std::endl;
   std::cout << "----------------------------" << std::endl;
 }
-
-
+*/
+/*
 void print_statistics_about_process(Process *process_ptr)
 {
   ConnList *curconn = process_ptr->connections; // A Connection List
   Connection *con;
   std::cout << "Process with the following fields: \n" << std::endl;
   std::cout << "name = " << process_ptr->name << std::endl;
-  //std::cout << "cmdline = " << process_ptr->cmdline << std::endl;
   std::cout << "device name = " << process_ptr->devicename << std::endl;
   std::cout << "process pid = " << process_ptr->pid << std::endl;
-  //std::cout << "sent by closed bytes = " << process_ptr->sent_by_closed_bytes << std::endl;
-  //std::cout << "received by closed bytes = " << process_ptr->rcvd_by_closed_bytes << std::endl;
+  std::cout << "cmdline = " << process_ptr->cmdline << std::endl;
+  std::cout << "aggregated connections sent closed bytes = " << process_ptr->sent_by_closed_bytes << std::endl;
+  std::cout << "aggregated connections received by closed bytes = " << process_ptr->rcvd_by_closed_bytes << std::endl;
   
-  /* Printing all information about "Active Connections" (which were not yet killed of the process) */
+  // Printing all information about "Active Connections" (which were not yet killed of the process) 
   std::cout << "\nThat Process has the following Connections: \n----------------\n" << std::endl;
   while(curconn != NULL)
   {
@@ -137,7 +138,8 @@ void print_statistics_about_process(Process *process_ptr)
     curconn = curconn->getNext();
   }
 }
-
+*/
+/*
 // #TODO - support for converting and printing IPv6
 // #TODO - make the output of this function generic so it will be capable of printing results into a file or to a standard output
 void print_closed_connection_info(Process *process_ptr, Connection *conn_todelete)
@@ -160,7 +162,7 @@ void print_closed_connection_info(Process *process_ptr, Connection *conn_todelet
   std::cout << "Connection Received Bytes = " << conn_todelete->sumRecv << std::endl;
   std::cout << "Done removing the connection\n" << std::endl;
 }
-
+*/
 // Getting INFROMATION about ALL ACTIVE CONNECTIONS of a PROCESS //
 /** get total values for this process for only active connections */
 static void sum_active_connections(Process *process_ptr, u_int64_t &sum_sent,
@@ -170,7 +172,7 @@ static void sum_active_connections(Process *process_ptr, u_int64_t &sum_sent,
   ConnList *curconn = process_ptr->connections;
   ConnList *previous = NULL;
   //print_statistics_about_process(process_ptr);
-  while (curconn != NULL) {
+  while (curconn != NULL) {// go over all the connections...
     // "curconn->getVal()" --- gives a current "Connection"	  
     if (curconn->getVal()->getLastPacket() <= curtime.tv_sec - CONNTIMEOUT) {
       /* Remove all connections that already have a CONNECTION TIMEOUT */
@@ -192,7 +194,7 @@ static void sum_active_connections(Process *process_ptr, u_int64_t &sum_sent,
       delete (todelete);
       std::cout << "Deletion of conn_list was successful" << std::endl;
       std::cout << "Trying to print closed connection info" << std::endl;
-      print_closed_connection_info(process_ptr, conn_todelete);
+      //print_closed_connection_info(process_ptr, conn_todelete);// TODO this can cause problems because "todelete" was already removed
       delete (conn_todelete);
     } else {
       u_int64_t sent = 0, recv = 0;
@@ -580,17 +582,16 @@ void remove_timed_out_processes() {
         processes = curproc->getNext();
         curproc = processes;
       }
-      std::cout << "Trying to remove Process" << std::endl; 
       std::cout << "Removing Timeout Process : " << p_todelete->name << std::endl;
       delete todelete; // Calling 'ProcList' Destructor
-      plot_process_connections_summary(p_todelete);
+      //plot_process_connections_summary(p_todelete);
       remove_process_connections_summary(p_todelete);
       delete p_todelete; // Calling current 'Process' Destructor
     }
     previousproc = curproc;
   }
 }
-
+/*
 void plot_process_connections_summary(Process *proc)
 {
   int connection_count;
@@ -603,16 +604,17 @@ void plot_process_connections_summary(Process *proc)
     std::cout << "File is not open" << std::endl;
     return;
   }
-  std::cout << "FILE IS OPENED!" << std::endl;
+  fprintf(fout,"AAAA\n");
   fprintf(fout,"---Procee Info---\n\n");
   fprintf(fout,"Process name = %s\n", proc->name);
   fprintf(fout,"Process devicename = %s\n", proc->devicename);
   fprintf(fout,"Process PID = %d\n", proc->pid);
   fprintf(fout,"Process UID = %d\n", proc->getUid());
-  fprintf(fout,"Total Process Sent Bytes = %d\n", proc->sent_by_closed_bytes);
-  fprintf(fout,"Total Process Received Bytes = %d\n", proc->rcvd_by_closed_bytes);
+  fprintf(fout,"Total Process Sent Bytes from closed connections = %d\n", proc->sent_by_closed_bytes);
+  fprintf(fout,"Total Process Received Bytes from closed connections = %d\n", proc->rcvd_by_closed_bytes);
   fprintf(fout,"-------------------------------\n\n");
-  
+  fprintf(fout,"---Going over all Summary Connection Nodes--\n");
+
   for(connection_count = 1; cur != NULL; cur = cur->next)
   {
     fprintf(fout,"Connection Number %d\n", connection_count);
@@ -633,9 +635,24 @@ void plot_process_connections_summary(Process *proc)
     fprintf(fout, "Bytes Sent = %d\n", cur->total_sent);
     fprintf(fout, "Bytes Received = %d\n", cur->total_received);
   }
+  fprintf(fout,"All Summary Connection Nodes have been printed\n");
+  ConnList *temp_con_list = proc->connections;
+  Connection *conn;
+  char str_src[INET_ADDRSTRLEN];
+  char str_dest[INET_ADDRSTRLEN];
+
+  while(temp_con_list)
+  {
+    conn = temp_con_list->getVal();
+    inet_ntop(AF_INET, &(conn->refpacket->sip), str_src, INET_ADDRSTRLEN);
+    inet_ntop(AF_INET, &(conn->refpacket->dip), str_dest,INET_ADDRSTRLEN);
+    fprintf(fout,"Not closed connection\nInfo:\nip_src: %s,\nip_dst: %s,\nsent: %d\n,recv: %d\n\n",str_src, str_dest, conn->sumSent, conn->sumRecv);
+    temp_con_list = temp_con_list->getNext();
+  }
+  fprintf(fout,"All 'Still Opened Connections' of process with PID = %d have been printed!\n\n", proc->pid);
   fclose(fout);
 }
-
+*/
 void remove_process_connections_summary(Process *p_todelete)
 {
   ConnSummary *cur = p_todelete->conn_summary_list;

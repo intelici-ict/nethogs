@@ -70,7 +70,7 @@ const char *const desc_view_mode[VIEWMODE_COUNT] = {
 class Line {
 public:
   Line(const char *name, const char *cmdline, double n_recv_value,
-       double n_sent_value, pid_t pid, uid_t uid, const char *n_devicename) {
+       double n_sent_value, pid_t pid, uid_t uid, const char *n_devicename, ConnList *conns) {
     assert(pid >= 0);
     assert(pid <= PID_MAX);
     m_name = name;
@@ -80,6 +80,7 @@ public:
     devicename = n_devicename;
     m_pid = pid;
     m_uid = uid;
+    m_conns = conns;
     assert(m_pid >= 0);
   }
 
@@ -89,6 +90,7 @@ public:
   double sent_value;
   double recv_value;
   const char *devicename;
+  ConnList *m_conns;
 
 private:
   const char *m_name;
@@ -214,11 +216,28 @@ void Line::show(int row, unsigned int proglen, unsigned int devlen) {
 }
 
 void Line::log() {
-  std::cout << m_name;
+  std::cout << "process_name: " << m_name << std::endl;
   if (showcommandline && m_cmdline)
-    std::cout << ' ' << m_cmdline;
-  std::cout << '/' << m_pid << '/' << m_uid << "\t" << sent_value << "\t"
-            << recv_value << std::endl;
+    std::cout << "process_command_line: " << m_cmdline << std::endl;
+  std::cout << "process_id: " << m_pid << std::endl;
+  std::cout << "process_uid: " << m_uid << std::endl;
+  std::cout << "process_total_sent: " << sent_value << std::endl;
+  std::cout << "process_total_received: " << recv_value << std::endl;
+  std::cout << "-process_connections_info-" << std::endl;
+  ConnList *conn_list_temp = m_conns;
+  Connection *conn;
+  char str_src[INET_ADDRSTRLEN];
+  char str_dest[INET_ADDRSTRLEN];
+  int con_count = 1;
+  while(conn_list_temp) //iterate over all the connections of the process
+  {
+    conn = conn_list_temp->getVal();
+    inet_ntop(AF_INET, &(conn->refpacket->sip), str_src, INET_ADDRSTRLEN);
+    inet_ntop(AF_INET, &(conn->refpacket->dip), str_dest, INET_ADDRSTRLEN);
+    std::cout << "con_" << con_count << " ip_src: " << str_src << " ip_dst: " << str_dest << " sent: " << conn->sumSent << " recv: " << conn->sumRecv << std::endl;
+    conn_list_temp = conn_list_temp->getNext();
+    con_count++;
+  }
 }
 
 int get_devlen(Line *lines[], int nproc, int rows) {
@@ -430,7 +449,7 @@ void do_refresh() {
 
     lines[n] = new Line(curproc->getVal()->name, curproc->getVal()->cmdline,
                         value_recv, value_sent, curproc->getVal()->pid, uid,
-                        curproc->getVal()->devicename);
+                        curproc->getVal()->devicename, curproc->getVal()->connections);
     curproc = curproc->next;
     n++;
   }

@@ -111,9 +111,9 @@ struct dpargs {
 const char *getVersion() { return version; }
 
 int process_tcp(u_char *userdata, const dp_header *header,
-                const u_char *m_packet) {
-  struct dpargs *args = (struct dpargs *)userdata;
-  struct tcphdr *tcp = (struct tcphdr *)m_packet;
+                const u_char *m_packet) { 
+  struct dpargs *args = (struct dpargs *)userdata; // "userdata" contains all the information which could be casted into "dpargs struct"
+  struct tcphdr *tcp = (struct tcphdr *)m_packet; // "m_packet" contains all the information which could be casted into "tcphdr struct"
 
   curtime = header->ts;
 
