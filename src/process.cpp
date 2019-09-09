@@ -192,8 +192,8 @@ static void sum_active_connections(Process *process_ptr, u_int64_t &sum_sent,
         previous->setNext(curconn);
       process_ptr->addToList(conn_todelete); // adding the connection to be deleted to the Linked List of the connections summary
       delete (todelete);
-      std::cout << "Deletion of conn_list was successful" << std::endl;
-      std::cout << "Trying to print closed connection info" << std::endl;
+      //std::cout << "Deletion of conn_list was successful" << std::endl;
+      //std::cout << "Trying to print closed connection info" << std::endl;
       //print_closed_connection_info(process_ptr, conn_todelete);// TODO this can cause problems because "todelete" was already removed
       delete (conn_todelete);
     } else {
@@ -277,7 +277,7 @@ void Process::gettotalb(float *recvd, float *sent) {
 bool Process::matchConnection(Connection *del_conn)
 {
   ConnSummary *node_iterator = conn_summary_list; // To iterate over all the Linked List elements
-  std::cout << "Trying to matchConnection" << std::endl;
+  //std::cout << "Trying to matchConnection" << std::endl;
   while (node_iterator!=NULL) // while we haven't reached the end of the Linked List
   {
     if (node_iterator->info.sa_family != del_conn->refpacket->getFamily())
@@ -289,9 +289,9 @@ bool Process::matchConnection(Connection *del_conn)
     {
       if (sameinaddr(node_iterator->info.ip_src, del_conn->refpacket->sip) && sameinaddr(node_iterator->info.ip_dst, del_conn->refpacket->dip))
       {
-	std::cout << "Addresses are of the same IPv4 Type - Trying to update the Connection" << std::endl;
+	//std::cout << "Addresses are of the same IPv4 Type - Trying to update the Connection" << std::endl;
 	updateConnection(node_iterator, del_conn);
-	std::cout << "A connection has been successfully updated at a matchConnection" << std::endl;
+	//std::cout << "A connection has been successfully updated at a matchConnection" << std::endl;
 	return true;
       }
     }
@@ -299,25 +299,25 @@ bool Process::matchConnection(Connection *del_conn)
     {
       if (samein6addr(node_iterator->info.ip6_src, del_conn->refpacket->sip6) && samein6addr(node_iterator->info.ip6_dst, del_conn->refpacket->dip6))
       {
-	std::cout << "Addresses are of the same IPv4 Type - Trying to update the Connection" << std::endl;
+	//std::cout << "Addresses are of the same IPv4 Type - Trying to update the Connection" << std::endl;
 	updateConnection(node_iterator, del_conn);
-        std::cout << "A connection has been successfully updated at a matchConnection" << std::endl;
+    //std::cout << "A connection has been successfully updated at a matchConnection" << std::endl;
 	return true;
       }
     }
     node_iterator = node_iterator->next;
   }
-  std::cout << "matchConnection is finally over successfully - No match was found!" << std::endl;
+  //std::cout << "matchConnection is finally over successfully - No match was found!" << std::endl;
   return false;
 }
 
 /* This function is called only in case we've found a match between a given connection that is timed out to a list of Hold Connection for a Process */
 void Process::updateConnection(ConnSummary *node_connection, Connection *del_conn)
 {
-  std::cout << "Trying to update a Connection" << std::endl;
+  //std::cout << "Trying to update a Connection" << std::endl;
   node_connection->total_sent+=del_conn->sumSent;
   node_connection->total_received+=del_conn->sumRecv;
-  std::cout << "Update of a connection is done successfully" << std::endl;
+  //std::cout << "Update of a connection is done successfully" << std::endl;
 }
 
 
@@ -343,22 +343,22 @@ void Process::addToList(Connection *conn)
     temp = conn_summary_list;
     if (temp == NULL) /* If that's the first one */
     {
-	std::cout << "Adding First Connection" << std::endl;
+	//std::cout << "Adding First Connection" << std::endl;
 	conn_summary_list = (ConnSummary*)malloc(sizeof(struct conn_summary));
-	std::cout << "Alloaction has been done successfully" << std::endl;
+	//std::cout << "Alloaction has been done successfully" << std::endl;
 	conn_summary_list->next = NULL;
-	std::cout << "Adding First Connection - Complete" << std::endl;
+	//std::cout << "Adding First Connection - Complete" << std::endl;
 	setConnectionData(conn_summary_list,conn);
     }
     else
     {
-      std::cout << "Trying to add a Connection to the list" << std::endl;
-      std::cout << "Entering a while loop" << std::endl;
+      //std::cout << "Trying to add a Connection to the list" << std::endl;
+      //std::cout << "Entering a while loop" << std::endl;
       while(temp->next != NULL)
       {
         temp = temp->next;
       }
-      std::cout << "Out of a while loop successfully" << std::endl;
+      //std::cout << "Out of a while loop successfully" << std::endl;
       temp->next = (ConnSummary*)malloc(sizeof(ConnSummary));
       temp = temp -> next;
       temp->next = NULL;
