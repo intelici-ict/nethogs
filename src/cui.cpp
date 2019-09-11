@@ -215,29 +215,63 @@ void Line::show(int row, unsigned int proglen, unsigned int devlen) {
   mvaddstr(row, column_offset_unit, desc_view_mode[viewMode]);
 }
 
-void Line::log() {
-  std::cout << "process_name: " << m_name << std::endl;
+void Line::log() { // this is a log of a specific process
+  std::cout << "\t{" << std::endl;
+  std::cout << "\t\t\"name\": " << "\"" << m_name << "\"" << "," << std::endl;
   if (showcommandline && m_cmdline)
-    std::cout << "process_command_line: " << m_cmdline << std::endl;
-  std::cout << "process_id: " << m_pid << std::endl;
-  std::cout << "process_uid: " << m_uid << std::endl;
-  std::cout << "process_total_sent: " << sent_value << std::endl;
-  std::cout << "process_total_received: " << recv_value << std::endl;
-  std::cout << "-process_connections_info-" << std::endl;
+    std::cout << "\t\t\"cmd\": " << "\"" << m_cmdline << "\"" << "," << std::endl;
+  std::cout << "\t\t\"pid\": " << m_pid << "," << std::endl;
+  std::cout << "\t\t\"uid\": " << m_uid << "," << std::endl;
+  std::cout << "\t\t\"process_total_sent\": " << sent_value << "," << std::endl;
+  std::cout << "\t\t\"process_total_rcv\": " << recv_value << std::endl;
+  
   ConnList *conn_list_temp = m_conns;
+  if(!conn_list_temp) // If there are no open connections in this particular process.. (the process is still in memory but it has not got any "active" connections
+  {
+
+    //std::cout << "\t}" << std::endl;
+    std::cout << "\t}";
+    return;
+  }
+  //std::cout << "\t}," << std::endl; // TODO - not always.....??
   Connection *conn;
+  std::cout << "\t\t\"connections\":" << std::endl;
+  std::cout << "\t\t{" << std::endl;
   char str_src[INET_ADDRSTRLEN];
   char str_dest[INET_ADDRSTRLEN];
   int con_count = 1;
   while(conn_list_temp) //iterate over all the connections of the process
   {
     conn = conn_list_temp->getVal();
-    inet_ntop(AF_INET, &(conn->refpacket->sip), str_src, INET_ADDRSTRLEN);
-    inet_ntop(AF_INET, &(conn->refpacket->dip), str_dest, INET_ADDRSTRLEN);
-    std::cout << "con_" << con_count << " ip_src: " << str_src << " ip_dst: " << str_dest << " sent: " << conn->sumSent << " recv: " << conn->sumRecv << std::endl;
+    if (conn->refpacket->getFamily() == AF_INET)
+    {
+      inet_ntop(AF_INET, &(conn->refpacket->sip), str_src, INET_ADDRSTRLEN);
+      inet_ntop(AF_INET, &(conn->refpacket->dip), str_dest, INET_ADDRSTRLEN);
+    }
+    else if (conn->refpacket->getFamily() == AF_INET6)
+    {
+      inet_ntop(AF_INET6, &(conn->refpacket->sip6), str_src, INET_ADDRSTRLEN);
+      inet_ntop(AF_INET6, &(conn->refpacket->dip6), str_dest, INET_ADDRSTRLEN);
+    }
+    else
+    {
+      std::cout << "ERROR AT PRINTING LOG" << std::endl;
+    }
+    std::cout << "\t\t\t\"conn_" << con_count << "\"" << ":" << std::endl;
+    std::cout << "\t\t\t{" << std::endl; 
+    std::cout << "\t\t\t\t\"ip_src\": " << "\"" << str_src << "\"" << "," << std::endl;
+    std::cout << "\t\t\t\t\"ip_dst\": " << "\"" << str_dest << "\"" << "," << std::endl;
+    std::cout << "\t\t\t\t\"sent\": " << conn->sumSent << "," << std::endl;
+    std::cout << "\t\t\t\t\"rcv\": " <<  conn->sumRecv << std::endl;
+    std::cout << "\t\t\t}";
     conn_list_temp = conn_list_temp->getNext();
+    if(conn_list_temp)
+        std::cout << ",";
+    std::cout << std::endl;
     con_count++;
   }
+  std::cout << "\t\t}" << std::endl;
+  std::cout << "\t}";
 }
 
 int get_devlen(Line *lines[], int nproc, int rows) {
@@ -329,12 +363,17 @@ void ui_tick() {
 
 void show_trace(Line *lines[], int nproc) {
   std::cout << "\nRefreshing:\n";
-
+  std::cout << "{" << std::endl;
+  //std::cout << "{" << std::endl;
   /* print them */
   for (int i = 0; i < nproc; i++) {
+    std::cout << "\t\"process_" << i+1 << "\":" << std::endl;
     lines[i]->log();
     delete lines[i];
+    if (i+1 < nproc) // if it is not the last process
+        std::cout << "," << std::endl;
   }
+  std::cout << "\n}\n" << std::endl;
 
   /* print the 'unknown' connections, for debugging */
   ConnList *curr_unknownconn = unknowntcp->connections;
