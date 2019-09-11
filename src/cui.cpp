@@ -223,17 +223,17 @@ void Line::log() { // this is a log of a specific process
   std::cout << "\t\t\"pid\": " << m_pid << "," << std::endl;
   std::cout << "\t\t\"uid\": " << m_uid << "," << std::endl;
   std::cout << "\t\t\"process_total_sent\": " << sent_value << "," << std::endl;
-  std::cout << "\t\t\"process_total_rcv\": " << recv_value << std::endl;
+  std::cout << "\t\t\"process_total_rcv\": " << recv_value;
   
   ConnList *conn_list_temp = m_conns;
   if(!conn_list_temp) // If there are no open connections in this particular process.. (the process is still in memory but it has not got any "active" connections
   {
 
     //std::cout << "\t}" << std::endl;
-    std::cout << "\t}";
+    std::cout << "\n\t}";
     return;
   }
-  //std::cout << "\t}," << std::endl; // TODO - not always.....??
+  std::cout << "," << std::endl; // TODO - not always.....??
   Connection *conn;
   std::cout << "\t\t\"connections\":" << std::endl;
   std::cout << "\t\t{" << std::endl;
