@@ -582,7 +582,7 @@ void remove_timed_out_processes() {
         processes = curproc->getNext();
         curproc = processes;
       }
-      std::cout << "Removing Timeout Process : " << p_todelete->name << std::endl;
+      //std::cout << "Removing Timeout Process : " << p_todelete->name << std::endl;
       delete todelete; // Calling 'ProcList' Destructor
       //plot_process_connections_summary(p_todelete);
       remove_process_connections_summary(p_todelete);

@@ -31,6 +31,7 @@
 #include "nethogs.h"
 #include "process.h"
 #include <ncurses.h>
+#include <time.h>
 
 std::string *caption;
 extern const char version[];
@@ -217,6 +218,7 @@ void Line::show(int row, unsigned int proglen, unsigned int devlen) {
 
 void Line::log() { // this is a log of a specific process
   std::cout << "\t{" << std::endl;
+  std::cout << "\t\t\"output_timestamp\": " << (unsigned long)time(NULL) << "," << std::endl;
   std::cout << "\t\t\"name\": " << "\"" << m_name << "\"" << "," << std::endl;
   if (showcommandline && m_cmdline)
     std::cout << "\t\t\"cmd\": " << "\"" << m_cmdline << "\"" << "," << std::endl;
@@ -260,7 +262,9 @@ void Line::log() { // this is a log of a specific process
     std::cout << "\t\t\t\"conn_" << con_count << "\"" << ":" << std::endl;
     std::cout << "\t\t\t{" << std::endl; 
     std::cout << "\t\t\t\t\"ip_src\": " << "\"" << str_src << "\"" << "," << std::endl;
+    std::cout << "\t\t\t\t\"port_src\": " << conn->refpacket->sport << "," << std::endl;
     std::cout << "\t\t\t\t\"ip_dst\": " << "\"" << str_dest << "\"" << "," << std::endl;
+    std::cout << "\t\t\t\t\"port_dst\": " << conn->refpacket->dport << "," << std::endl;
     std::cout << "\t\t\t\t\"sent\": " << conn->sumSent << "," << std::endl;
     std::cout << "\t\t\t\t\"rcv\": " <<  conn->sumRecv << std::endl;
     std::cout << "\t\t\t}";
